@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
 import '../auth/register_page.dart';
+import 'package:ihtiyacim/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -44,11 +46,21 @@ class _LoginPageState extends State<LoginPage> {
       );
 
       if (!mounted) return;
-      Navigator.of(context).pop();
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => const HomePage(),
+        ),
+        (route) => false,
+      );
     } on FirebaseAuthException catch (e) {
-      setState(() => error = _trError(e.code));
+      if (mounted) {
+        setState(() => error = _trError(e.code));
+      }
     } catch (_) {
-      setState(() => error = 'Bir hata oluştu.');
+      if (mounted) {
+        setState(() => error = 'Bir hata oluştu.');
+      }
     } finally {
       if (mounted) setState(() => loading = false);
     }
@@ -89,9 +101,9 @@ class _LoginPageState extends State<LoginPage> {
                 style: const TextStyle(color: Colors.red),
               ),
             ),
-
           TextField(
             controller: emailC,
+            enabled: !loading,
             keyboardType: TextInputType.emailAddress,
             decoration: const InputDecoration(
               labelText: 'E-posta',
@@ -99,20 +111,17 @@ class _LoginPageState extends State<LoginPage> {
               border: OutlineInputBorder(),
             ),
           ),
-
           const SizedBox(height: 12),
-
           TextField(
             controller: passC,
+            enabled: !loading,
             obscureText: true,
             decoration: const InputDecoration(
               labelText: 'Şifre',
               border: OutlineInputBorder(),
             ),
           ),
-
           const SizedBox(height: 16),
-
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
@@ -126,9 +135,7 @@ class _LoginPageState extends State<LoginPage> {
                   : const Text('Giriş Yap'),
             ),
           ),
-
           const SizedBox(height: 12),
-
           TextButton(
             onPressed: loading
                 ? null
